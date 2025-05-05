@@ -2,8 +2,10 @@ import React, { useState } from "react";
 import { render } from "react-dom";
 
 const App = () => {
+	const workTime = 2 * 6;
+	const restTime = 4;
 	const [status, setStatus] = useState("off");
-	const [time, setTime] = useState(20 * 60);
+	const [time, setTime] = useState(workTime);
 	const [timer, setTimer] = useState(null);
 	const audioElement = new Audio("./sounds/bell.wav");
 
@@ -16,22 +18,18 @@ const App = () => {
 	};
 
 	const startTimer = () => {
-		let currentStatus = "work";
-		setStatus(currentStatus);
+		setStatus("work");
 
 		const interval = setInterval(() => {
 			setTime((prevTime) => {
 				if (prevTime <= 1) {
 					audioElement.play();
-					if (currentStatus === "work") {
-						currentStatus = "rest";
-						setStatus("rest");
-						return 20; // 20 sekund przerwy
-					} else {
-						currentStatus = "work";
-						setStatus("work");
-						return 20 * 60; // 20 minut pracy
-					}
+					setStatus((prevStatus) => {
+						const nextStatus = prevStatus === "work" ? "rest" : "work";
+						setTime(nextStatus === "work" ? workTime : restTime);
+						return nextStatus;
+					});
+					return prevTime;
 				}
 				return prevTime - 1;
 			});
